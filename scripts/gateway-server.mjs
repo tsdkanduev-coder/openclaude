@@ -25,6 +25,7 @@ const MODEL_SLOTS = [
     upstreamModel: 'gpt-4o-mini',
     upstreamBaseUrl: 'https://api.openai.com/v1',
     apiKeyEnv: 'GATEWAY_OPENAI_API_KEY',
+    maxOutputTokens: 16_384,
   },
   {
     id: 'chatgpt-gpt-4o',
@@ -36,6 +37,7 @@ const MODEL_SLOTS = [
     upstreamModel: 'gpt-4o',
     upstreamBaseUrl: 'https://api.openai.com/v1',
     apiKeyEnv: 'GATEWAY_OPENAI_API_KEY',
+    maxOutputTokens: 16_384,
   },
   {
     id: 'chatgpt-o4-mini',
@@ -47,6 +49,7 @@ const MODEL_SLOTS = [
     upstreamModel: 'o4-mini',
     upstreamBaseUrl: 'https://api.openai.com/v1',
     apiKeyEnv: 'GATEWAY_OPENAI_API_KEY',
+    maxOutputTokens: 100_000,
   },
   {
     id: 'deepseek-slot',
@@ -58,6 +61,7 @@ const MODEL_SLOTS = [
     upstreamModel: '',
     upstreamBaseUrl: 'https://api.deepseek.com/v1',
     apiKeyEnv: 'GATEWAY_DEEPSEEK_API_KEY',
+    maxOutputTokens: null,
   },
   {
     id: 'yandex-slot',
@@ -69,6 +73,7 @@ const MODEL_SLOTS = [
     upstreamModel: '',
     upstreamBaseUrl: '',
     apiKeyEnv: 'GATEWAY_YANDEX_API_KEY',
+    maxOutputTokens: null,
   },
   {
     id: 'gigachat-slot',
@@ -80,6 +85,7 @@ const MODEL_SLOTS = [
     upstreamModel: '',
     upstreamBaseUrl: '',
     apiKeyEnv: 'GATEWAY_GIGACHAT_API_KEY',
+    maxOutputTokens: null,
   },
 ]
 
@@ -223,6 +229,7 @@ function buildPublicModel(slot, req) {
     model: slot.alias,
     baseUrl,
     description: slot.description,
+    maxOutputTokens: slot.maxOutputTokens ?? null,
   }
 }
 
@@ -294,6 +301,16 @@ async function proxyChatCompletion(req, res) {
   const upstreamBody = {
     ...req.body,
     model: slot.upstreamModel,
+  }
+
+  // Enforce upstream output-token ceilings centrally so the desktop app can keep
+  // a stable product flow even when the runtime sends a generic 32k default.
+  if (
+    typeof slot.maxOutputTokens === 'number' &&
+    Number.isFinite(slot.maxOutputTokens) &&
+    typeof upstreamBody.max_tokens === 'number'
+  ) {
+    upstreamBody.max_tokens = Math.min(upstreamBody.max_tokens, slot.maxOutputTokens)
   }
 
   const upstreamResponse = await fetch(`${slot.upstreamBaseUrl}/chat/completions`, {
