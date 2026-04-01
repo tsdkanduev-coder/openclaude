@@ -113,6 +113,9 @@ New progress since the first version of this handoff:
 - gateway URL, beta token, and access code flow now exist in the UI
 - the runtime can now exchange `POST /beta-access`, fetch `GET /models`, persist gateway config, and launch sessions using the saved beta token
 - the fallback catalog now uses explicit provider/model labels such as `ChatGPT · GPT-4o mini`
+- a first gateway server now exists in the repo
+- ChatGPT aliases can already route through that gateway
+- DeepSeek / Yandex / GigaChat currently exist as placeholder slots in the gateway config
 
 ### 3.2 Electron desktop scaffold
 
@@ -151,6 +154,7 @@ Created:
 
 - [desktop-beta-architecture.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/desktop-beta-architecture.md)
 - [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md)
+- [gateway-service.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-service.md)
 
 This captures the intended product architecture:
 
@@ -231,13 +235,17 @@ Done:
 - remote model catalog fetch exists
 - gateway preset sessions reuse the saved beta token as the OpenAI-compatible credential path
 - explicit provider/model naming is now the agreed UI rule
+- gateway server scaffold exists in [gateway-server.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/gateway-server.mjs)
+- `GET /health`, `POST /beta-access`, `GET /models`, `GET /v1/models`, and `POST /v1/chat/completions` exist
+- ChatGPT aliases can already map to real upstream OpenAI models
+- unresolved providers are preserved as placeholder slots instead of being silently dropped from the plan
 
 Next:
 
 - define beta auth token shape
 - connect the app to a real deployed gateway instead of mocked responses
 - decide whether gateway tokens should stay in local JSON for beta or move to keychain next
-- get the exact DeepSeek / Yandex / GigaChat model ids that should appear in the catalog
+- fill the placeholder slots with exact DeepSeek / Yandex / GigaChat upstream model IDs and auth details
 
 Definition of done for this track:
 
@@ -416,13 +424,14 @@ Progress made:
 - gateway settings and token exchange plumbing now exist in the app
 - the expected backend contract is documented in [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md)
 - the product direction now requires explicit provider/model labels instead of abstract modes
+- a gateway service implementation now exists in [gateway-server.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/gateway-server.mjs)
 
 Still missing:
 
 - a real deployed gateway that serves the catalog
 - centralized routing on the live backend
 - a final decision on token storage hardening for beta
-- the exact catalog entries for Yandex and GigaChat
+- the final upstream wiring for DeepSeek / Yandex / GigaChat placeholders
 
 ### 6.3 UI / design quality
 
@@ -517,6 +526,7 @@ Completed:
 2. UI shows model choices / presets through a temporary local catalog.
 3. Gateway URL + beta token/access code flow now exists in the shell.
 4. Runtime can now fetch a real remote catalog if the gateway implements the expected contract.
+5. A first gateway service implementation now exists in the repo and can route ChatGPT aliases today.
 
 Still needed:
 
@@ -591,10 +601,11 @@ Deliverable:
 
 This is the exact order I would continue in on the next implementation pass.
 
-1. Connect the app to a real deployed gateway that implements the documented contract.
-2. Improve first-launch workspace onboarding and cleanly separate workspace actions from repo-maintenance actions.
-3. Rebuild the shell layout and component styling around a cleaner design system.
-4. Finish desktop boot verification and produce the first packaged beta build.
+1. Deploy the new gateway service to Render.
+2. Connect the app to a real deployed gateway that implements the documented contract.
+3. Improve first-launch workspace onboarding and cleanly separate workspace actions from repo-maintenance actions.
+4. Rebuild the shell layout and component styling around a cleaner design system.
+5. Finish desktop boot verification and produce the first packaged beta build.
 
 Reason for this order:
 
@@ -606,13 +617,14 @@ Reason for this order:
 
 If only one vertical slice can be done next, it should be this:
 
-1. User opens desktop app.
-2. User connects a beta gateway.
-3. App exchanges an access code or saves a beta token.
-4. App fetches the remote model catalog.
-5. User picks a workspace folder.
-6. User creates a session against that workspace.
-7. App launches a real OpenClaude session through the gateway preset.
+1. Gateway service is deployed.
+2. User opens desktop app.
+3. User connects a beta gateway.
+4. App exchanges an access code or saves a beta token.
+5. App fetches the remote model catalog.
+6. User picks a workspace folder.
+7. User creates a session against that workspace.
+8. App launches a real OpenClaude session through the gateway preset.
 
 If that slice works, the product stops being "a cool demo shell" and starts being a real beta candidate.
 
@@ -622,14 +634,14 @@ If continuing from this handoff, the next best step is:
 
 ### Recommended next implementation target
 
-Connect the desktop shell to a real deployed gateway implementation.
+Deploy and connect the first real gateway implementation.
 
 Concretely:
 
-1. Implement the backend side of [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md).
+1. Deploy [gateway-server.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/gateway-server.mjs) to Render.
 2. Point the app at the live gateway and validate the full flow with real responses.
 3. Decide whether to keep beta tokens in local JSON for the first beta or move them to keychain immediately.
-4. Keep the existing direct key fields only in a secondary dev/debug path if needed.
+4. Fill the placeholder provider slots one by one.
 
 Why this is first:
 
@@ -637,6 +649,7 @@ Why this is first:
 - the preset-driven adapter layer is already in place
 - centralized billing is the next big product requirement from the user
 - the desktop side of that routing contract now exists, so the next blocker is the real backend integration
+- the first backend integration target is now concrete and local to this repo
 - packaging before this risks freezing the wrong product shape
 
 ## 8.1 Risks And Watchouts
@@ -657,13 +670,15 @@ If context is compressed, read these first in order:
 1. [context-handoff.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/context-handoff.md)
 2. [desktop-beta-architecture.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/desktop-beta-architecture.md)
 3. [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md)
-4. [app-launcher.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/app-launcher.mjs)
-5. [main.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/desktop/main.mjs)
-6. [index.html](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/index.html)
-7. [app.js](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/app.js)
-8. [styles.css](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/styles.css)
-9. [package.json](/Users/tkanduev/Documents/GigaWork/openclaude/package.json)
-10. [electron-builder.yml](/Users/tkanduev/Documents/GigaWork/openclaude/electron-builder.yml)
+4. [gateway-service.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-service.md)
+5. [gateway-server.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/gateway-server.mjs)
+6. [app-launcher.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/scripts/app-launcher.mjs)
+7. [main.mjs](/Users/tkanduev/Documents/GigaWork/openclaude/desktop/main.mjs)
+8. [index.html](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/index.html)
+9. [app.js](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/app.js)
+10. [styles.css](/Users/tkanduev/Documents/GigaWork/openclaude/launcher-ui/styles.css)
+11. [package.json](/Users/tkanduev/Documents/GigaWork/openclaude/package.json)
+12. [electron-builder.yml](/Users/tkanduev/Documents/GigaWork/openclaude/electron-builder.yml)
 
 ## 10. Current Git / File State
 
@@ -680,6 +695,7 @@ Current modified / added work includes:
 - [electron-builder.yml](/Users/tkanduev/Documents/GigaWork/openclaude/electron-builder.yml)
 - [desktop-beta-architecture.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/desktop-beta-architecture.md)
 - [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md)
+- [gateway-service.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-service.md)
 - [context-handoff.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/context-handoff.md)
 
 Unrelated / local environment note:
@@ -738,4 +754,4 @@ The right next move is:
 
 If context is compressed and a new agent needs a fast restart, use this summary:
 
-"We are turning OpenClaude into a macOS-first Electron desktop beta for 5-10 testers. The repo already contains a working browser shell over real OpenClaude `stream-json` child sessions, plus an Electron scaffold and packaging config. A first workspace-first slice is already implemented, and the desktop side of the gateway adapter now exists: gateway config persists, `beta-access` exchange works, remote `/models` catalogs are supported, and gateway presets launch with the saved beta token. The next priority is to connect this to a real deployed gateway, then redesign the shell to feel closer to Codex / ChatGPT, and only then finish packaging the first installable beta build."
+"We are turning OpenClaude into a macOS-first Electron desktop beta for 5-10 testers. The repo already contains a working browser shell over real OpenClaude `stream-json` child sessions, plus an Electron scaffold and packaging config. A first workspace-first slice is already implemented, the desktop side of the gateway adapter exists, and now a first gateway server exists in the repo too: it supports `beta-access`, `models`, and OpenAI-compatible chat completion routing for ChatGPT aliases, while DeepSeek / Yandex / GigaChat remain placeholder slots to fill next. The immediate next priority is to deploy this gateway to Render, connect the desktop app to it, then redesign the shell to feel closer to Codex / ChatGPT, and only then finish packaging the first installable beta build."

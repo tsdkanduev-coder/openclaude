@@ -29,7 +29,7 @@ The current app now supports this flow:
 5. When the user launches a session from a gateway preset, the runtime uses:
    - `OPENAI_BASE_URL=<gateway inference base URL>`
    - `OPENAI_API_KEY=<beta token>`
-   - `OPENAI_MODEL=<selected preset model>`
+   - `OPENAI_MODEL=<selected gateway alias>`
 
 This keeps OpenClaude on a normal OpenAI-compatible transport while moving billing and key selection to the gateway.
 
@@ -85,14 +85,14 @@ Successful response:
       "id": "chatgpt-gpt-4o-mini",
       "label": "ChatGPT · GPT-4o mini",
       "provider": "chatgpt",
-      "model": "gpt-4o-mini",
+      "model": "chatgpt-gpt-4o-mini",
       "description": "Explicit ChatGPT model choice"
     },
     {
       "id": "deepseek-deepseek-chat",
-      "label": "DeepSeek · deepseek-chat",
+      "label": "DeepSeek · pending exact model",
       "provider": "deepseek",
-      "model": "deepseek-chat",
+      "model": "deepseek-slot",
       "baseUrl": "https://gateway.example.com/v1"
     }
   ]
@@ -119,7 +119,7 @@ The normalized fields used by the app are:
   "id": "chatgpt-gpt-4o-mini",
   "label": "ChatGPT · GPT-4o mini",
   "provider": "chatgpt",
-  "model": "gpt-4o-mini",
+  "model": "chatgpt-gpt-4o-mini",
   "baseUrl": "https://gateway.example.com/v1",
   "description": "Explicit ChatGPT model choice"
 }
@@ -130,7 +130,7 @@ Notes:
 - `id` is the stable catalog identifier used by the UI
 - `label` is what the user sees and should already contain the provider + model name
 - `provider` is optional but recommended for analytics and routing visibility
-- `model` is what OpenClaude sends as `OPENAI_MODEL`
+- `model` is the gateway alias that OpenClaude sends as `OPENAI_MODEL`
 - `baseUrl` is the OpenAI-compatible inference root
 
 Recommended naming style:
@@ -138,9 +138,9 @@ Recommended naming style:
 - `ChatGPT · GPT-4o mini`
 - `ChatGPT · GPT-4o`
 - `ChatGPT · o4-mini`
-- `DeepSeek · deepseek-chat`
-- `Yandex · <exact model id>`
-- `GigaChat · <exact model id>`
+- `DeepSeek · pending exact model`
+- `Yandex · 5.1 Pro (placeholder)`
+- `GigaChat · Ultra (placeholder)`
 
 ## Inference Contract
 
@@ -176,3 +176,14 @@ For a 5-10 person beta, this is enough:
 - centralized logging and rate limiting at the gateway
 
 No full user account system is required for this version.
+
+## Placeholder Slots
+
+The current server may keep unresolved providers as internal placeholder slots.
+
+That means:
+
+- the service can already be deployed
+- the desktop app can already integrate against it
+- only configured providers are returned to the user-facing catalog
+- unresolved providers can be filled in later without changing the overall contract

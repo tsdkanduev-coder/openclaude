@@ -16,6 +16,8 @@
     "dev": "bun run build && node dist/cli.mjs",
     "launcher": "node scripts/app-launcher.mjs",
     "launcher:open": "OPENCLAUDE_LAUNCHER_OPEN=1 node scripts/app-launcher.mjs",
+    "gateway:dev": "node scripts/gateway-server.mjs",
+    "gateway:start": "node scripts/gateway-server.mjs",
     "desktop:dev": "electron desktop/main.mjs",
     "desktop:beta": "bun run build && electron desktop/main.mjs",
     "desktop:pack": "bun run build && electron-builder --dir",
