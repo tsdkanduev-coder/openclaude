@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url'
 const defaultPort = Number(
   process.env.PORT || process.env.OPENCLAUDE_GATEWAY_PORT || '8787',
 )
-const host = process.env.OPENCLAUDE_GATEWAY_HOST || '127.0.0.1'
+const host =
+  process.env.OPENCLAUDE_GATEWAY_HOST || (process.env.RENDER ? '0.0.0.0' : '127.0.0.1')
 const isProduction = process.env.NODE_ENV === 'production'
 const defaultDevAccessCode = 'openclaude-beta'
 const defaultDevSecret = 'openclaude-beta-dev-secret'

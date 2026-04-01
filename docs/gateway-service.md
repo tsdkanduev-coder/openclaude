@@ -51,6 +51,9 @@ export GATEWAY_PUBLIC_BASE_URL=https://your-gateway.example.com
 export GATEWAY_TOKEN_TTL_SECONDS=2592000
 ```
 
+On Render, the gateway now auto-binds to `0.0.0.0`. You only need to set
+`OPENCLAUDE_GATEWAY_HOST` if you want to override that default.
+
 If `BETA_ACCESS_CODES` is omitted outside production, the default local access code is:
 
 ```text
