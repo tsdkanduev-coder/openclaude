@@ -165,10 +165,10 @@ Suggested config shape:
 {
   "models": [
     {
-      "alias": "fast",
-      "label": "Fast",
+      "alias": "chatgpt-gpt-4o-mini",
+      "label": "ChatGPT · GPT-4o mini",
       "provider": "openai",
-      "upstreamModel": "gpt-4o",
+      "upstreamModel": "gpt-4o-mini",
       "keyId": "openai_primary",
       "baseUrl": "https://gateway.example.com/v1",
       "capabilities": ["chat", "tools", "stream"]
@@ -176,6 +176,11 @@ Suggested config shape:
   ]
 }
 ```
+
+Important naming rule:
+
+- the client should expose explicit provider/model choices
+- avoid abstract names like `Fast`, `Balanced`, or `Reasoning`
 
 The client should never know which real provider key is being used.
 

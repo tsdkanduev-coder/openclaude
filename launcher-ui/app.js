@@ -180,7 +180,7 @@ function renderModelCatalog() {
   for (const item of items) {
     const option = document.createElement('option')
     option.value = item.id
-    option.textContent = `${item.label} · ${item.model}`
+    option.textContent = item.label || item.model
     elements.modelPreset.append(option)
   }
 

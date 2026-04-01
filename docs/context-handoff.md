@@ -23,9 +23,10 @@ Important product constraints from the user:
 1. Sign-in is not important right now. Beta speed matters more than account infrastructure.
 2. Current design is unacceptable and should be replaced after studying Codex / ChatGPT visual patterns and flows.
 3. The user wants centralized billing and routing:
-   - users should choose model presets
+   - users should choose explicit provider/model entries
    - real provider API keys live on the user's backend
    - switching a model on the client should effectively switch backend routing / key selection
+   - avoid abstract labels like `Fast` / `Balanced` / `Reasoning` in the final UI
 
 ## 2. Product Direction Chosen
 
@@ -111,6 +112,7 @@ New progress since the first version of this handoff:
 - direct provider fields now live in a secondary developer override surface
 - gateway URL, beta token, and access code flow now exist in the UI
 - the runtime can now exchange `POST /beta-access`, fetch `GET /models`, persist gateway config, and launch sessions using the saved beta token
+- the fallback catalog now uses explicit provider/model labels such as `ChatGPT · GPT-4o mini`
 
 ### 3.2 Electron desktop scaffold
 
@@ -228,12 +230,14 @@ Done:
 - beta access code exchange exists
 - remote model catalog fetch exists
 - gateway preset sessions reuse the saved beta token as the OpenAI-compatible credential path
+- explicit provider/model naming is now the agreed UI rule
 
 Next:
 
 - define beta auth token shape
 - connect the app to a real deployed gateway instead of mocked responses
 - decide whether gateway tokens should stay in local JSON for beta or move to keychain next
+- get the exact DeepSeek / Yandex / GigaChat model ids that should appear in the catalog
 
 Definition of done for this track:
 
@@ -411,12 +415,14 @@ Progress made:
 - a temporary local catalog now stands in for the future backend catalog
 - gateway settings and token exchange plumbing now exist in the app
 - the expected backend contract is documented in [gateway-contract.md](/Users/tkanduev/Documents/GigaWork/openclaude/docs/gateway-contract.md)
+- the product direction now requires explicit provider/model labels instead of abstract modes
 
 Still missing:
 
 - a real deployed gateway that serves the catalog
 - centralized routing on the live backend
 - a final decision on token storage hardening for beta
+- the exact catalog entries for Yandex and GigaChat
 
 ### 6.3 UI / design quality
 

@@ -9,9 +9,14 @@ The desktop app should not hold real upstream provider keys.
 Instead, it connects to a small central gateway that:
 
 - authenticates beta users with a simple token flow
-- returns the list of model presets the app should show
+- returns the list of explicit provider/model choices the app should show
 - accepts OpenAI-compatible inference traffic
 - routes each requested model to the correct upstream provider key
+
+Important product rule:
+
+- the UI should show clearly defined model names such as `ChatGPT · GPT-4o mini`
+- the UI should **not** show abstract modes such as `Fast`, `Balanced`, or `Reasoning`
 
 ## Desktop App Behavior
 
@@ -65,7 +70,7 @@ Optional:
 
 Purpose:
 
-- return the model presets shown in the desktop app
+- return the explicit provider/model choices shown in the desktop app
 
 Headers:
 
@@ -77,15 +82,17 @@ Successful response:
 {
   "items": [
     {
-      "id": "fast",
-      "label": "Fast",
-      "model": "gateway-fast",
-      "description": "Primary beta preset"
+      "id": "chatgpt-gpt-4o-mini",
+      "label": "ChatGPT · GPT-4o mini",
+      "provider": "chatgpt",
+      "model": "gpt-4o-mini",
+      "description": "Explicit ChatGPT model choice"
     },
     {
-      "id": "deep",
-      "label": "Deep Reasoning",
-      "model": "gateway-deep",
+      "id": "deepseek-deepseek-chat",
+      "label": "DeepSeek · deepseek-chat",
+      "provider": "deepseek",
+      "model": "deepseek-chat",
       "baseUrl": "https://gateway.example.com/v1"
     }
   ]
@@ -109,20 +116,31 @@ The normalized fields used by the app are:
 
 ```json
 {
-  "id": "fast",
-  "label": "Fast",
-  "model": "gateway-fast",
+  "id": "chatgpt-gpt-4o-mini",
+  "label": "ChatGPT · GPT-4o mini",
+  "provider": "chatgpt",
+  "model": "gpt-4o-mini",
   "baseUrl": "https://gateway.example.com/v1",
-  "description": "Primary beta preset"
+  "description": "Explicit ChatGPT model choice"
 }
 ```
 
 Notes:
 
-- `id` is the stable preset identifier used by the UI
-- `label` is what the user sees
+- `id` is the stable catalog identifier used by the UI
+- `label` is what the user sees and should already contain the provider + model name
+- `provider` is optional but recommended for analytics and routing visibility
 - `model` is what OpenClaude sends as `OPENAI_MODEL`
 - `baseUrl` is the OpenAI-compatible inference root
+
+Recommended naming style:
+
+- `ChatGPT · GPT-4o mini`
+- `ChatGPT · GPT-4o`
+- `ChatGPT · o4-mini`
+- `DeepSeek · deepseek-chat`
+- `Yandex · <exact model id>`
+- `GigaChat · <exact model id>`
 
 ## Inference Contract
 
