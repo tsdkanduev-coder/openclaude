@@ -1,0 +1,26 @@
+appId: com.gitlawb.openclaude.beta
+productName: OpenClaude Beta
+directories:
+  output: release
+files:
+  - package.json
+  - desktop/**
+  - dist/**
+  - launcher-ui/**
+  - scripts/app-launcher.mjs
+  - README.md
+  - PLAYBOOK.md
+  - node_modules/**
+asar: true
+asarUnpack:
+  - dist/**
+  - launcher-ui/**
+  - scripts/**
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+    - zip
+  artifactName: ${productName}-${version}-${arch}.${ext}
+extraMetadata:
+  main: desktop/main.mjs

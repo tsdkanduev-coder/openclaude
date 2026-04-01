@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenClaude App Shell</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere glow-a"></div>
+    <div class="atmosphere glow-b"></div>
+
+    <main class="app-frame">
+      <aside class="sidebar panel">
+        <div class="brand">
+          <p class="eyebrow">Backend Shell</p>
+          <h1>OpenClaude</h1>
+          <p class="sidebar-copy">
+            Codex-style wrapper over the existing OpenClaude backend.
+          </p>
+        </div>
+
+        <button id="create-session-button" class="primary wide" type="button">
+          New Session
+        </button>
+
+        <div class="sidebar-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Gateway</p>
+              <h3>Model Routing</h3>
+            </div>
+            <span id="gateway-status" class="badge muted-badge">Local fallback</span>
+          </div>
+
+          <form id="gateway-form" class="form compact-form">
+            <label>
+              <span>Gateway URL</span>
+              <input
+                id="gateway-base-url"
+                type="url"
+                placeholder="https://gateway.example.com"
+              />
+            </label>
+
+            <label>
+              <span>Beta Token</span>
+              <input
+                id="gateway-beta-token"
+                type="password"
+                autocomplete="off"
+                placeholder="Optional if you use an access code"
+              />
+            </label>
+
+            <label>
+              <span>Access Code</span>
+              <input
+                id="gateway-access-code"
+                type="password"
+                autocomplete="off"
+                placeholder="Exchange once for a beta token"
+              />
+            </label>
+
+            <div class="row-actions">
+              <button id="gateway-connect" class="primary compact" type="submit">
+                Connect
+              </button>
+              <button
+                id="gateway-refresh"
+                class="ghost compact"
+                type="button"
+              >
+                Refresh Models
+              </button>
+              <button
+                id="gateway-disconnect"
+                class="ghost compact"
+                type="button"
+              >
+                Disconnect
+              </button>
+            </div>
+          </form>
+
+          <p id="gateway-copy" class="sidebar-copy">
+            Point this app at your centralized model gateway.
+          </p>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Workspace</p>
+              <h3 id="workspace-name">No workspace selected</h3>
+            </div>
+            <span id="workspace-badge" class="badge muted-badge">Pick a folder</span>
+          </div>
+          <p id="workspace-path" class="sidebar-copy">
+            Choose a project folder before starting a session.
+          </p>
+          <div class="row-actions">
+            <button id="choose-workspace" class="primary compact" type="button">
+              Choose Folder
+            </button>
+            <button id="open-workspace" class="ghost compact" type="button">
+              Reveal
+            </button>
+          </div>
+          <div id="recent-workspaces" class="workspace-list"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-head">
+            <p class="eyebrow">Sessions</p>
+            <span id="session-count" class="badge">0</span>
+          </div>
+          <div id="session-list" class="session-list"></div>
+        </div>
+
+        <div class="sidebar-section links">
+          <a href="/docs/readme" target="_blank" rel="noreferrer">README</a>
+          <a href="/docs/playbook" target="_blank" rel="noreferrer">Playbook</a>
+          <a
+            href="https://github.com/Gitlawb/openclaude"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar panel">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <h2 id="session-title">No session selected</h2>
+            <p id="session-subtitle" class="muted">
+              Create a backend session on the right, then start chatting here.
+            </p>
+          </div>
+
+          <div class="topbar-meta">
+            <span id="build-state" class="badge">Checking build</span>
+            <span id="stream-state" class="badge muted-badge">Connecting</span>
+            <button id="interrupt-session" class="ghost compact" type="button">
+              Interrupt
+            </button>
+            <button id="delete-session" class="ghost compact" type="button">
+              Close
+            </button>
+          </div>
+        </header>
+
+        <div class="workspace-grid">
+          <section class="chat panel">
+            <div id="empty-state" class="empty-state">
+              <p class="eyebrow">Flow</p>
+              <h3>One live backend process per session</h3>
+              <p>
+                This shell keeps OpenClaude running in `stream-json` mode,
+                forwards your prompts over NDJSON, and renders the streamed
+                backend events as a browser conversation.
+              </p>
+            </div>
+
+            <div id="message-list" class="message-list"></div>
+
+            <form id="composer" class="composer">
+              <label class="composer-field">
+                <span class="sr-only">Prompt</span>
+                <textarea
+                  id="prompt-input"
+                  rows="4"
+                  placeholder="Ask OpenClaude to inspect, edit, or run something..."
+                ></textarea>
+              </label>
+
+              <div class="composer-actions">
+                <p id="composer-hint" class="muted">
+                  Select or create a session to start.
+                </p>
+                <button id="send-prompt" class="primary" type="submit">
+                  Send
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <aside class="inspector panel">
+            <section class="inspector-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Runtime</p>
+                  <h3>Session Config</h3>
+                </div>
+                <span id="app-root" class="mini-copy">Loading...</span>
+              </div>
+
+              <form id="session-form" class="form">
+                <label>
+                  <span>Model Preset</span>
+                  <select id="model-preset"></select>
+                </label>
+
+                <p id="model-catalog-copy" class="muted">
+                  Loading model catalog...
+                </p>
+
+                <p id="server-key-hint" class="muted">
+                  Checking server-side credentials...
+                </p>
+
+                <label>
+                  <span>System Prompt</span>
+                  <textarea
+                    id="system-prompt"
+                    rows="4"
+                    placeholder="Optional: app-level instructions for this session"
+                  ></textarea>
+                </label>
+
+                <label class="toggle">
+                  <input id="bare-mode" type="checkbox" />
+                  <span>Use `--bare` for a leaner backend boot</span>
+                </label>
+
+                <details class="advanced-config">
+                  <summary>Developer Overrides</summary>
+
+                  <label>
+                    <span>Model ID</span>
+                    <input id="model" type="text" placeholder="gpt-4o" />
+                  </label>
+
+                  <label>
+                    <span>Base URL</span>
+                    <input
+                      id="base-url"
+                      type="text"
+                      placeholder="https://api.deepseek.com/v1"
+                    />
+                  </label>
+
+                  <label>
+                    <span>API Key</span>
+                    <input
+                      id="api-key"
+                      type="password"
+                      autocomplete="off"
+                      placeholder="Only needed for direct provider testing"
+                    />
+                  </label>
+                </details>
+
+                <div class="row-actions">
+                  <button id="submit-session" class="primary" type="submit">
+                    Create Session
+                  </button>
+                  <button id="open-terminal" class="ghost" type="button">
+                    Open Raw CLI
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="inspector-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Permissions</p>
+                  <h3>Pending Actions</h3>
+                </div>
+                <span id="permission-count" class="badge">0</span>
+              </div>
+              <div id="permission-list" class="permission-list"></div>
+            </section>
+
+            <section class="inspector-section">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Ops</p>
+                  <h3>Project Controls</h3>
+                </div>
+                <span id="task-pill" class="badge">Idle</span>
+              </div>
+
+              <div class="control-grid">
+                <button data-task="build" class="action-tile" type="button">
+                  <strong>Build</strong>
+                  <span>Compile `dist/cli.mjs`</span>
+                </button>
+                <button data-task="doctor" class="action-tile" type="button">
+                  <strong>Doctor</strong>
+                  <span>Runtime sanity check</span>
+                </button>
+                <button data-task="smoke" class="action-tile" type="button">
+                  <strong>Smoke</strong>
+                  <span>Build and version check</span>
+                </button>
+                <button
+                  data-task="providerTests"
+                  class="action-tile"
+                  type="button"
+                >
+                  <strong>Provider Tests</strong>
+                  <span>Shim and context tests</span>
+                </button>
+                <button
+                  data-task="recommendationTests"
+                  class="action-tile"
+                  type="button"
+                >
+                  <strong>Profile Tests</strong>
+                  <span>Recommendation logic</span>
+                </button>
+                <button
+                  data-task="typecheck"
+                  class="action-tile danger"
+                  type="button"
+                >
+                  <strong>Typecheck</strong>
+                  <span>Known noisy, still useful</span>
+                </button>
+              </div>
+
+              <div class="row-actions ops-actions">
+                <button id="refresh-state" class="ghost" type="button">
+                  Refresh
+                </button>
+              </div>
+            </section>
+
+            <section class="inspector-section logs">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Logs</p>
+                  <h3>Task Output</h3>
+                </div>
+              </div>
+              <pre id="task-log">Waiting for the first action...</pre>
+              <div id="history-list" class="history-list"></div>
+            </section>
+
+            <section class="inspector-section logs">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Session</p>
+                  <h3>Backend Stderr</h3>
+                </div>
+              </div>
+              <pre id="session-log">Select a session to inspect backend logs.</pre>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <template id="session-item-template">
+      <button class="session-item" type="button">
+        <span class="session-item-title"></span>
+        <span class="session-item-copy"></span>
+      </button>
+    </template>
+
+    <template id="history-item-template">
+      <div class="history-item">
+        <strong class="history-label"></strong>
+        <span class="history-copy"></span>
+      </div>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

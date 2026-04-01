@@ -14,6 +14,12 @@
   "scripts": {
     "build": "bun run scripts/build.ts",
     "dev": "bun run build && node dist/cli.mjs",
+    "launcher": "node scripts/app-launcher.mjs",
+    "launcher:open": "OPENCLAUDE_LAUNCHER_OPEN=1 node scripts/app-launcher.mjs",
+    "desktop:dev": "electron desktop/main.mjs",
+    "desktop:beta": "bun run build && electron desktop/main.mjs",
+    "desktop:pack": "bun run build && electron-builder --dir",
+    "desktop:dist": "bun run build && electron-builder",
     "dev:profile": "bun run scripts/provider-launch.ts",
     "dev:profile:fast": "bun run scripts/provider-launch.ts auto --fast --bare",
     "dev:codex": "bun run scripts/provider-launch.ts codex",
@@ -117,6 +123,8 @@
     "@types/bun": "^1.2.0",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0",
     "typescript": "^5.7.0"
   },
   "engines": {
