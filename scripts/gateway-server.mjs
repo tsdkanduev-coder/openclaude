@@ -16,16 +16,16 @@ const tokenLifetimeSeconds = Number(
 
 const MODEL_SLOTS = [
   {
-    id: 'chatgpt-gpt-4o-mini',
-    alias: 'chatgpt-gpt-4o-mini',
-    label: 'ChatGPT · GPT-4o mini',
+    id: 'chatgpt-gpt-5.4',
+    alias: 'chatgpt-gpt-5.4',
+    label: 'ChatGPT · GPT-5.4',
     provider: 'chatgpt',
-    description: 'Explicit ChatGPT model choice for fast general work.',
+    description: 'OpenAI flagship model for complex reasoning and coding.',
     upstreamProvider: 'openai',
-    upstreamModel: 'gpt-4o-mini',
+    upstreamModel: 'gpt-5.4',
     upstreamBaseUrl: 'https://api.openai.com/v1',
     apiKeyEnv: 'GATEWAY_OPENAI_API_KEY',
-    maxOutputTokens: 16_384,
+    maxOutputTokens: 128_000,
   },
   {
     id: 'chatgpt-gpt-4o',

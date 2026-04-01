@@ -37,15 +37,28 @@ const MAX_TRANSCRIPT_ITEMS = 240
 const MAX_ACTIVITY_ITEMS = 24
 const MAX_RECENT_WORKSPACES = 8
 
+const DESKTOP_SESSION_PROMPT = `You are running inside the OpenClaude desktop app with direct access to the selected workspace.
+
+Operate on the workspace yourself with tools. Do not ask the user to open files, list folders, or copy file contents if you can inspect them directly.
+
+Workspace rules:
+- For folders, use Bash or Glob. Do not claim the required tool is unavailable if Bash or Glob can inspect the directory.
+- For normal text files, use Read.
+- If Read reports that a .docx file is binary, continue with Bash instead of stopping.
+- On macOS, prefer: textutil -convert txt -stdout -- <path-to-file>
+- If textutil fails for a .docx, fall back to extracting and reading word/document.xml from the zip container.
+- After inspecting files, answer with findings and a concise summary instead of tool limitations.
+`
+
 const LOCAL_MODEL_CATALOG = [
   {
-    id: 'chatgpt-gpt-4o-mini',
-    label: 'ChatGPT · GPT-4o mini',
+    id: 'chatgpt-gpt-5.4',
+    label: 'ChatGPT · GPT-5.4',
     provider: 'chatgpt',
     transport: 'direct',
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.4',
     baseUrl: 'https://api.openai.com/v1',
-    description: 'Explicit ChatGPT model choice for fast general work.',
+    description: 'OpenAI flagship model for complex reasoning and coding.',
   },
   {
     id: 'chatgpt-gpt-4o',
@@ -127,6 +140,13 @@ const eventClients = new Set()
 function sanitizeSecret(value) {
   const trimmed = String(value || '').trim()
   return trimmed && trimmed !== 'SUA_CHAVE' ? trimmed : ''
+}
+
+function buildDesktopSystemPrompt(userPrompt) {
+  const customPrompt = String(userPrompt || '').trim()
+  return customPrompt
+    ? `${DESKTOP_SESSION_PROMPT}\n\nAdditional session instructions:\n${customPrompt}`
+    : DESKTOP_SESSION_PROMPT
 }
 
 function normalizeHttpUrl(value) {
@@ -1657,7 +1677,7 @@ function normalizeSessionPayload(body) {
       process.env.OPENAI_API_KEY,
   )
   const bareMode = body?.bareMode === true
-  const systemPrompt = String(body?.systemPrompt || '').trim()
+  const systemPrompt = buildDesktopSystemPrompt(body?.systemPrompt)
   return { presetId, model, baseUrl, apiKey, bareMode, systemPrompt }
 }
 

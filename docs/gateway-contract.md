@@ -15,7 +15,7 @@ Instead, it connects to a small central gateway that:
 
 Important product rule:
 
-- the UI should show clearly defined model names such as `ChatGPT · GPT-4o mini`
+- the UI should show clearly defined model names such as `ChatGPT · GPT-5.4`
 - the UI should **not** show abstract modes such as `Fast`, `Balanced`, or `Reasoning`
 
 ## Desktop App Behavior
@@ -82,10 +82,10 @@ Successful response:
 {
   "items": [
     {
-      "id": "chatgpt-gpt-4o-mini",
-      "label": "ChatGPT · GPT-4o mini",
+      "id": "chatgpt-gpt-5.4",
+      "label": "ChatGPT · GPT-5.4",
       "provider": "chatgpt",
-      "model": "chatgpt-gpt-4o-mini",
+      "model": "chatgpt-gpt-5.4",
       "description": "Explicit ChatGPT model choice"
     },
     {
@@ -116,10 +116,10 @@ The normalized fields used by the app are:
 
 ```json
 {
-  "id": "chatgpt-gpt-4o-mini",
-  "label": "ChatGPT · GPT-4o mini",
+  "id": "chatgpt-gpt-5.4",
+  "label": "ChatGPT · GPT-5.4",
   "provider": "chatgpt",
-  "model": "chatgpt-gpt-4o-mini",
+  "model": "chatgpt-gpt-5.4",
   "baseUrl": "https://gateway.example.com/v1",
   "description": "Explicit ChatGPT model choice"
 }
@@ -135,7 +135,7 @@ Notes:
 
 Recommended naming style:
 
-- `ChatGPT · GPT-4o mini`
+- `ChatGPT · GPT-5.4`
 - `ChatGPT · GPT-4o`
 - `ChatGPT · o4-mini`
 - `DeepSeek · pending exact model`
